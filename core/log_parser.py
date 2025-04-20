@@ -1,4 +1,6 @@
-import os
+import os, re
+import log_models
+import utils
 from pathlib import Path
 
 parsed_errors = []
@@ -26,12 +28,22 @@ def clear_parsed_logs():
     parsed_game = []
 
 def parse_and_append_line(line, log_type):
-    clear_parsed_logs()
     if not line.strip():
         return  # Skip empty lines
     if log_type == "error":
         if "Error" or "Script Location" in line:
-            parsed_errors.append(line.strip())
+            matches = re.findall(r'\[(.*?)\]', line)
+            file_match = re.search(r'([a-zA-Z0-9_/\\.-]+\.(?:txt|mod))', line)
+            #Cache timestamp into a LogEntry then append it to the list
+            if len(matches) >= 3:
+                timestamp = matches[0]          
+                new_log_entry = log_models.LogEntry(
+                    timestamp=timestamp,
+                    log_type="error",
+                    message=line.strip(),
+                    file= file_match.group(0) if file_match else "Unknown",
+                )
+                parsed_errors.append(new_log_entry)
     elif log_type == "debug":
         if "DEBUG" in line:
             parsed_debug.append(line.strip())
@@ -39,9 +51,10 @@ def parse_and_append_line(line, log_type):
         if "GAME" in line:
             parsed_game.append(line.strip())
 
+clear_parsed_logs()
 log_files = get_log_files()
 for log_type, path in log_files.items():
     with open(path, "r", encoding="utf-8", errors="ignore") as file:
         for line in file:
             parse_and_append_line(line, log_type)
-print(parsed_errors)
+print(parsed_errors[0])
