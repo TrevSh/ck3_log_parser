@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 
+parsed_errors = []
+parsed_debug = []
+parsed_game = []
+
 def get_ck3_logs_dir():
     user = os.environ['USERPROFILE']
     log_path = Path(user) / 'Documents' / 'Paradox Interactive' / 'Crusader Kings III' / 'logs'
@@ -15,21 +19,29 @@ def get_log_files():
     }
     return log_files
 
-def parse_line(line, log_type):
+def clear_parsed_logs():
+    global parsed_errors, parsed_debug, parsed_game
+    parsed_errors = []
+    parsed_debug = []
+    parsed_game = []
+
+def parse_and_append_line(line, log_type):
+    clear_parsed_logs()
+    if not line.strip():
+        return  # Skip empty lines
     if log_type == "error":
         if "Error" or "Script Location" in line:
-            print(f"Error found: {line.strip()}")
-    # elif log_type == "debug":
-    #     # Example parsing for debug logs
-    #     if "DEBUG" in line:
-    #         print(f"Debug info: {line.strip()}")
-    # elif log_type == "game":
-    #     # Example parsing for game logs
-    #     if "GAME" in line:
-    #         print(f"Game event: {line.strip()}")
+            parsed_errors.append(line.strip())
+    elif log_type == "debug":
+        if "DEBUG" in line:
+            parsed_debug.append(line.strip())
+    elif log_type == "game":
+        if "GAME" in line:
+            parsed_game.append(line.strip())
 
 log_files = get_log_files()
 for log_type, path in log_files.items():
     with open(path, "r", encoding="utf-8", errors="ignore") as file:
         for line in file:
-            parse_line(line, log_type)
+            parse_and_append_line(line, log_type)
+print(parsed_errors)
