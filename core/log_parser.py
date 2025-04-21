@@ -1,6 +1,5 @@
 import os, re
 from . import log_models
-from . import utils
 from pathlib import Path
 
 parsed_errors = []
