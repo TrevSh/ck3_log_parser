@@ -18,10 +18,11 @@ This tool helps modders and developers debug their mods by visualizing error, de
 - ✅ One-click executable build (Windows)
 
 ## Roadmap/To-Do 
--[ ] Remove uneeded values from Message column
--[ ] Expand functionality to Debug, Game, and **Crash** logs
--[ ] Collect feedback from community
--[ ] Make tool more accessible during development
+
+- [ ] Remove uneeded values from Message column
+- [ ] Expand functionality to Debug, Game, and **Crash** logs
+- [ ] Collect feedback from community
+- [ ] Make tool more accessible during development
 
 ## 📦 Installation (Development)
 
