@@ -2,7 +2,8 @@ import sys
 from core import log_parser
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-    QTableWidget, QTableWidgetItem, QComboBox, QLineEdit, QPushButton, QHeaderView
+    QTableWidget, QTableWidgetItem, QComboBox, QLineEdit, QPushButton, QHeaderView,
+    QFileDialog
 )
 
 class LogViewer(QWidget):
@@ -23,6 +24,12 @@ class LogViewer(QWidget):
         controls.addWidget(self.type_filter)
         controls.addWidget(self.search_bar)
         controls.addWidget(self.refresh_button)
+        
+        #Add Folder
+        self.folder_button = QPushButton("Select Log Folder")
+        self.folder_button.clicked.connect(self.browse_log_folder)
+        controls.addWidget(self.folder_button)
+
 
         # Log table
         self.table = QTableWidget(0, 4)
@@ -46,6 +53,12 @@ class LogViewer(QWidget):
             self.table.setItem(row_position, 1, QTableWidgetItem(log_entry.log_type))
             self.table.setItem(row_position, 2, QTableWidgetItem(log_entry.file))
             self.table.setItem(row_position, 3, QTableWidgetItem(log_entry.message))
+    
+    def browse_log_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Select CK3 Logs Folder")
+        if folder:
+            print("User selected folder:", folder)
+            self.load_logs_from_folder(folder)
             
 
     def load_logs(self):
