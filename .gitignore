@@ -1,1 +1,31 @@
-env
+# Virtual environments
+env/
+.venv/
+
+# Bytecode
+__pycache__/
+**/__pycache__/
+
+# Compiled Python files
+*.py[cod]
+*$py.class
+
+# VS Code settings (optional, if you're using VS Code)
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# PyInstaller
+/dist/
+/build/
+*.spec
+*.exe
+*.pyz
+*.toc
+*.pkg
+*.zip
+*.html
+*.txt
+*.ps1
