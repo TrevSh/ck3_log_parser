@@ -1,6 +1,6 @@
 import os, re
-import log_models
-import utils
+from . import log_models
+from . import utils
 from pathlib import Path
 
 parsed_errors = []
@@ -51,10 +51,11 @@ def parse_and_append_line(line, log_type):
         if "GAME" in line:
             parsed_game.append(line.strip())
 
-clear_parsed_logs()
-log_files = get_log_files()
-for log_type, path in log_files.items():
-    with open(path, "r", encoding="utf-8", errors="ignore") as file:
-        for line in file:
-            parse_and_append_line(line, log_type)
-print(parsed_errors[0])
+if __name__ == "__main__":
+    clear_parsed_logs()
+    log_files = get_log_files()
+    for log_type, path in log_files.items():
+        with open(path, "r", encoding="utf-8", errors="ignore") as file:
+            for line in file:
+                parse_and_append_line(line, log_type)
+    print(parsed_errors[0])
