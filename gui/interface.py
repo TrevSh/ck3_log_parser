@@ -7,8 +7,9 @@ from PySide6.QtWidgets import (
 )
 
 class LogViewer(QWidget):
-    def __init__(self):
+    def __init__(self, parser):
         super().__init__()
+        self.parser = parser
         self.setWindowTitle("CK3 Log Viewer")
 
         self.layout = QVBoxLayout()
@@ -46,7 +47,7 @@ class LogViewer(QWidget):
     
     def populate_table(self):
         self.table.setRowCount(0)
-        for log_entry in log_parser.parsed_errors:
+        for log_entry in self.parser.parsed_errors:
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
             self.table.setItem(row_position, 0, QTableWidgetItem(log_entry.timestamp))
@@ -60,14 +61,26 @@ class LogViewer(QWidget):
             print("User selected folder:", folder)
             self.load_logs_from_folder(folder)
             
+    def load_logs_from_folder(self, folder_path):
+        self.parser.clear_parsed_logs()
+        log_files = self.parser.get_log_files()
+
+        for log_type, path in log_files.items():
+            if path.exists():
+                with open(path, "r", encoding="utf-8", errors="ignore") as file:
+                    for line in file:
+                        self.parser.parse_and_append_line(line, log_type)
+
+        self.populate_table()  # Your own table update function
+                
 
     def load_logs(self):
-        log_parser.clear_parsed_logs()
-        log_files = log_parser.get_log_files()
+        self.parser.clear_parsed_logs()
+        log_files = self.parser.get_log_files()
         for log_type, path in log_files.items():
             with open(path, "r", encoding="utf-8", errors="ignore") as file:
                 for line in file:
-                    log_parser.parse_and_append_line(line, log_type)
+                    self.parser.parse_and_append_line(line, log_type)
 
         self.populate_table()
 

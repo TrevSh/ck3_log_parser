@@ -7,55 +7,56 @@ parsed_errors = []
 parsed_debug = []
 parsed_game = []
 
-def get_ck3_logs_dir():
-    user = os.environ['USERPROFILE']
-    log_path = Path(user) / 'Documents' / 'Paradox Interactive' / 'Crusader Kings III' / 'logs'
-    return log_path
 
-def get_log_files():
-    logs_dir = get_ck3_logs_dir()
-    log_files = {
-        "error": logs_dir / "error.log",
-        "debug": logs_dir / "debug.log",
-        "game": logs_dir / "game.log",
-    }
-    return log_files
+class LogParser:
+    def __init__(self, log_dir: Path = None):
+        self.log_dir = log_dir or self.get_default_log_dir()
+        self.parsed_errors = []
+        self.parsed_debug = []
+        self.parsed_game = []
 
-def clear_parsed_logs():
-    global parsed_errors, parsed_debug, parsed_game
-    parsed_errors = []
-    parsed_debug = []
-    parsed_game = []
+    def get_default_log_dir(self):
+        import os
+        user = os.environ['USERPROFILE']
+        return Path(user) / 'Documents' / 'Paradox Interactive' / 'Crusader Kings III' / 'logs'
 
-def parse_and_append_line(line, log_type):
-    if not line.strip():
-        return  # Skip empty lines
-    if log_type == "error":
-        if "Error" or "Script Location" in line:
+    def get_log_files(self):
+        return {
+            "error": self.log_dir / "error.log",
+            "debug": self.log_dir / "debug.log",
+            "game": self.log_dir / "game.log",
+        }
+
+    def clear_parsed_logs(self):
+        self.parsed_errors.clear()
+        self.parsed_debug.clear()
+        self.parsed_game.clear()
+
+    def parse(self):
+        self.clear_parsed_logs()
+        for log_type, path in self.get_log_files().items():
+            if path.exists():
+                with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                    for line in f:
+                        self.parse_and_append_line(line, log_type)
+
+    def parse_and_append_line(self, line, log_type):
+        if not line.strip():
+            return
+
+        if log_type == "error":
             matches = re.findall(r'\[(.*?)\]', line)
             file_match = re.search(r'([a-zA-Z0-9_/\\.-]+\.(?:txt|mod))', line)
-            #Cache timestamp into a LogEntry then append it to the list
             if len(matches) >= 3:
-                timestamp = matches[0]          
-                new_log_entry = log_models.LogEntry(
+                timestamp = matches[0]
+                new_entry = log_models.LogEntry(
                     timestamp=timestamp,
                     log_type="error",
                     message=line.strip(),
-                    file= file_match.group(0) if file_match else "Unknown",
+                    file=file_match.group(0) if file_match else "Unknown"
                 )
-                parsed_errors.append(new_log_entry)
-    elif log_type == "debug":
-        if "DEBUG" in line:
-            parsed_debug.append(line.strip())
-    elif log_type == "game":
-        if "GAME" in line:
-            parsed_game.append(line.strip())
-
-if __name__ == "__main__":
-    clear_parsed_logs()
-    log_files = get_log_files()
-    for log_type, path in log_files.items():
-        with open(path, "r", encoding="utf-8", errors="ignore") as file:
-            for line in file:
-                parse_and_append_line(line, log_type)
-    print(parsed_errors[0])
+                self.parsed_errors.append(new_entry)
+        elif log_type == "debug" and "DEBUG" in line:
+            self.parsed_debug.append(line.strip())
+        elif log_type == "game" and "GAME" in line:
+            self.parsed_game.append(line.strip())
