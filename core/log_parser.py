@@ -40,13 +40,14 @@ class LogParser:
 
         if log_type == "error":
             matches = re.findall(r'\[(.*?)\]', line)
+            outside = re.sub(r'\[.*?\]:', '', line).strip()
             file_match = re.search(r'([a-zA-Z0-9_/\\.-]+\.(?:txt|mod))', line)
             if len(matches) >= 3:
                 timestamp = matches[0]
                 new_entry = log_models.LogEntry(
                     timestamp=timestamp,
                     log_type="error",
-                    message=line.strip(),
+                    message=outside,
                     file=file_match.group(0) if file_match else "Unknown"
                 )
                 self.parsed_errors.append(new_entry)
