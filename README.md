@@ -4,7 +4,9 @@ A desktop GUI tool for parsing and viewing **Crusader Kings III logs**. Built in
 
 This tool helps modders and developers debug their mods by visualizing error, debug, and game logs in a user-friendly format.
 
+##### Early Access Screenshot below.
 ![image](https://github.com/user-attachments/assets/fe40aa10-f0c8-4dc7-bf8d-5bfd534ee5d9)
+
 
 
 ## ✨ Features
