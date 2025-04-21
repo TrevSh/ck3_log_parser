@@ -16,3 +16,15 @@ __pycache__/
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# PyInstaller
+/dist/
+/build/
+*.spec
+*.exe
+*.pyz
+*.toc
+*.pkg
+*.zip
+*.html
+*.txt
