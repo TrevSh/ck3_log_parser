@@ -10,15 +10,10 @@ parsed_game = []
 
 class LogParser:
     def __init__(self, log_dir: Path = None):
-        self.log_dir = log_dir or self.get_default_log_dir()
+        self.log_dir = log_dir or self.get_windows_default_log_dir()
         self.parsed_errors = []
         self.parsed_debug = []
         self.parsed_game = []
-
-    def get_default_log_dir(self):
-        import os
-        user = os.environ['USERPROFILE']
-        return Path(user) / 'Documents' / 'Paradox Interactive' / 'Crusader Kings III' / 'logs'
 
     def get_log_files(self):
         return {
