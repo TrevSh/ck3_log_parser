@@ -1,10 +1,11 @@
 import sys
 from core import log_parser
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QBrush, QColor
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QComboBox, QLineEdit, QPushButton, QHeaderView,
-    QFileDialog, 
+    QFileDialog, QLabel
 )
 
 class LogViewer(QWidget):
@@ -15,10 +16,36 @@ class LogViewer(QWidget):
 
         self.layout = QVBoxLayout()
 
+        #Customization
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #1e1e1e;
+            }
+            QTableWidget {
+                background-color: #2e2e2e;
+                color: white;
+                gridline-color: #555;
+            }
+            QHeaderView::section {
+                background-color: #444;
+                color: white;
+                padding: 4px;
+                font-weight: bold;
+            }
+            QPushButton {
+                background-color: #5e5e5e;
+                border-radius: 5px;
+                padding: 6px 12px;
+                color: white;
+            }
+        """)
+
+        self.setWindowTitle("CK3 Log Viewer!(Beta)")
+
         # Filter controls
         controls = QHBoxLayout()
         self.type_filter = QComboBox()
-        self.type_filter.addItems(["All", "Error", "Warning", "Debug"])
+        self.type_filter.addItems(["All", "Error", "Game", "Debug"])
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Search log messages...")
         self.refresh_button = QPushButton("Refresh Logs")
@@ -42,11 +69,25 @@ class LogViewer(QWidget):
         self.layout.addLayout(controls)
         self.layout.addWidget(self.table)
         self.setLayout(self.layout)
+        
+        github_label = QLabel()
+        github_label.setText('<a href="https://github.com/TrevSh/ck3_log_parser">Contribute Here</a>')
+        github_label.setOpenExternalLinks(True)
+        github_label.setAlignment(Qt.AlignRight)  # Align to the right if placed in HBox
+        
+        # Footer row
+        footer_layout = QHBoxLayout()
+        footer_layout.addStretch()                 # push the label to the right
+        footer_layout.addWidget(github_label)
+        self.layout.addLayout(footer_layout)
 
         # Bind events
         self.refresh_button.clicked.connect(self.load_logs)
         self.type_filter.currentIndexChanged.connect(self.apply_filters)
         self.search_bar.textChanged.connect(self.apply_filters)
+        
+        # Settings
+        
 
     
     def create_rows(self, log_entries):
@@ -98,8 +139,6 @@ class LogViewer(QWidget):
     def apply_filters(self):
         selected_type = self.type_filter.currentText().lower()
         search_text = self.search_bar.text().lower()
-
-        # Get all logs from the parser
         all_logs = self.parser.get_all_entries()
 
         # Apply filters
