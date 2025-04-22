@@ -19,7 +19,6 @@ This tool helps modders and developers debug their mods by visualizing error, de
 
 ## Roadmap/To-Do 
 
-- [ ] Remove uneeded values from Message column
 - [ ] Expand functionality to Debug, Game, and **Crash** logs
 - [ ] Collect feedback from community
 - [ ] Make tool more accessible during development
