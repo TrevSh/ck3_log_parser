@@ -45,7 +45,9 @@ class LogViewer(QWidget):
 
         # Bind events
         self.refresh_button.clicked.connect(self.load_logs)
-    
+        self.type_filter.currentIndexChanged.connect(self.apply_filters)
+        self.search_bar.textChanged.connect(self.apply_filters)
+
     
     def create_rows(self, log_entries):
         for log_entry in log_entries:
@@ -92,6 +94,32 @@ class LogViewer(QWidget):
                     self.parser.parse_line(line, log_type)
 
         self.populate_table()
+        
+    def apply_filters(self):
+        selected_type = self.type_filter.currentText().lower()
+        search_text = self.search_bar.text().lower()
+
+        # Get all logs from the parser
+        all_logs = self.parser.get_all_entries()
+
+        # Apply filters
+        filtered = []
+
+        for entry in all_logs:
+            # Match log type (if not "All")
+            if selected_type != "all" and selected_type not in entry.log_type.lower():
+                continue
+
+            # Match search text in message (optional)
+            if search_text and search_text not in entry.message.lower():
+                continue
+
+            filtered.append(entry)
+
+        # Now show filtered results
+        self.table.setRowCount(0)
+        self.create_rows(filtered)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
