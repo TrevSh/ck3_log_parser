@@ -6,16 +6,12 @@ parsed_errors = {}
 parsed_debug = {}
 parsed_game = {}
 
-entries_for_gui = {}
-
-
 class LogParser:
     def __init__(self, log_dir: Path = None):
         self.log_dir = log_dir or self.get_windows_default_log_dir()
         self.parsed_errors = {}
         self.parsed_debug = {}
         self.parsed_game = {}
-        
 
     def get_log_files(self):
         return {
@@ -73,13 +69,17 @@ class LogParser:
         elif log_type == "game":
                 self.parsed_game.setdefault(key, entry)
         
-    #     self.merge_entries()
-    
-    # def merge_entries(self):
-    #     merged_dict = {
-            # **self.parsed_errors,
-            # **self.parsed_debug,
-            # **self.parsed_game,
-    #     }
-    #     entries_for_gui = list(merged_dict.values())
-        
+    def get_all_entries(self, deduped=False):
+        combined = (
+            list(self.parsed_errors.values()) +
+            list(self.parsed_debug.values()) +
+            list(self.parsed_game.values())
+        )
+
+        if deduped:
+            combined = {
+                (e.timestamp, e.message): e
+                for e in combined
+            }.values()
+
+        return sorted(combined, key=lambda e: e.timestamp)     

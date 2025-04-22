@@ -62,9 +62,7 @@ class LogViewer(QWidget):
 
     def populate_table(self):
         self.table.setRowCount(0)
-        self.create_rows(self.parser.parsed_errors.values())
-        self.create_rows(self.parser.parsed_debug.values())
-        self.create_rows(self.parser.parsed_game.values())
+        self.create_rows(self.parser.get_all_entries())
         
     def browse_log_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select CK3 Logs Folder")
