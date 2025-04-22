@@ -1,9 +1,10 @@
 import sys
 from core import log_parser
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QComboBox, QLineEdit, QPushButton, QHeaderView,
-    QFileDialog
+    QFileDialog, 
 )
 
 class LogViewer(QWidget):
@@ -17,7 +18,7 @@ class LogViewer(QWidget):
         # Filter controls
         controls = QHBoxLayout()
         self.type_filter = QComboBox()
-        self.type_filter.addItems(["All", "Error", "Warning", "Info"])
+        self.type_filter.addItems(["All", "Error", "Warning", "Debug"])
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Search log messages...")
         self.refresh_button = QPushButton("Refresh Logs")
@@ -45,16 +46,24 @@ class LogViewer(QWidget):
         # Bind events
         self.refresh_button.clicked.connect(self.load_logs)
     
-    def populate_table(self):
-        self.table.setRowCount(0)
-        for log_entry in self.parser.parsed_errors:
+    
+    def create_rows(self, log_entries):
+        for log_entry in log_entries:
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
-            self.table.setItem(row_position, 0, QTableWidgetItem(log_entry.timestamp))
-            self.table.setItem(row_position, 1, QTableWidgetItem(log_entry.log_type))
-            self.table.setItem(row_position, 2, QTableWidgetItem(log_entry.file))
-            self.table.setItem(row_position, 3, QTableWidgetItem(log_entry.message))
-    
+            self.table.setItem(row_position, 0, QTableWidgetItem(log_entry.timestamp or ""))
+            self.table.setItem(row_position, 1, QTableWidgetItem(log_entry.log_type or ""))
+            self.table.setItem(row_position, 2, QTableWidgetItem(log_entry.file or ""))
+
+            message_item = QTableWidgetItem(log_entry.message or "")
+            message_item.setToolTip(log_entry.message or "")
+            message_item.setTextAlignment(Qt.AlignLeft | Qt.AlignTop)
+            self.table.setItem(row_position, 3, message_item)
+
+    def populate_table(self):
+        self.table.setRowCount(0)
+        self.create_rows(self.parser.get_all_entries())
+        
     def browse_log_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select CK3 Logs Folder")
         if folder:
@@ -80,7 +89,7 @@ class LogViewer(QWidget):
         for log_type, path in log_files.items():
             with open(path, "r", encoding="utf-8", errors="ignore") as file:
                 for line in file:
-                    self.parser.parse_and_append_line(line, log_type)
+                    self.parser.parse_line(line, log_type)
 
         self.populate_table()
 
