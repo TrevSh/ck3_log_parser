@@ -1,6 +1,6 @@
-import sys
+import sys, datetime
 from core import log_parser
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QBrush, QColor
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout,
@@ -59,27 +59,38 @@ class LogViewer(QWidget):
         self.folder_button.clicked.connect(self.browse_log_folder)
         controls.addWidget(self.folder_button)
 
-
         # Log table
         self.table = QTableWidget(0, 4)
         self.table.setHorizontalHeaderLabels(["Time", "Level", "Location", "Message"])
         self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)
-
 
         self.layout.addLayout(controls)
         self.layout.addWidget(self.table)
         self.setLayout(self.layout)
         
         github_label = QLabel()
+        github_label.setStyleSheet("""
+            QLabel {
+                color: #888;
+                font-size: 10pt;
+                padding: 4px;
+            }
+            QLabel:hover {
+                color: #fff;
+            }
+        """ )
         github_label.setText('<a href="https://github.com/TrevSh/ck3_log_parser">Contribute Here</a>')
         github_label.setOpenExternalLinks(True)
         github_label.setAlignment(Qt.AlignRight)  # Align to the right if placed in HBox
-        
+       
         # Footer row
         footer_layout = QHBoxLayout()
         footer_layout.addStretch()                 # push the label to the right
         footer_layout.addWidget(github_label)
         self.layout.addLayout(footer_layout)
+        
+        self.timestamp_label = QLabel() 
+        self.timestamp_label.setAlignment(Qt.AlignLeft)
 
         # Bind events
         self.refresh_button.clicked.connect(self.load_logs)
@@ -87,8 +98,6 @@ class LogViewer(QWidget):
         self.search_bar.textChanged.connect(self.apply_filters)
         
         # Settings
-        
-
     
     def create_rows(self, log_entries):
         for log_entry in log_entries:
@@ -123,8 +132,7 @@ class LogViewer(QWidget):
                     for line in file:
                         self.parser.parse_and_append_line(line, log_type)
 
-        self.populate_table()  # Your own table update function
-                
+        self.populate_table()  # Your own table update function                
 
     def load_logs(self):
         self.parser.clear_parsed_logs()
@@ -158,11 +166,3 @@ class LogViewer(QWidget):
         # Now show filtered results
         self.table.setRowCount(0)
         self.create_rows(filtered)
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    viewer = LogViewer()
-    viewer.resize(800, 600)
-    viewer.show()
-    sys.exit(app.exec_())

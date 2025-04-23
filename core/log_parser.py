@@ -12,6 +12,7 @@ class LogParser:
         self.parsed_errors = {}
         self.parsed_debug = {}
         self.parsed_game = {}
+        
 
     def get_log_files(self):
         return {
