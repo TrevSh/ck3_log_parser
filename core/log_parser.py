@@ -15,6 +15,9 @@ class LogParser:
         
 
     def get_log_files(self):
+        if not self.log_dir:
+            return
+        self.log_dir = Path(self.log_dir)
         return {
             "error": self.log_dir / "error.log",
             "debug": self.log_dir / "debug.log",
@@ -32,12 +35,13 @@ class LogParser:
         self.parsed_game.clear()
 
     def parse(self):
-        self.clear_parsed_logs()
-        for log_type, path in self.get_log_files().items():
-            if path.exists():
-                with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-                    for line in f:
-                        self.parse_line(line, log_type)
+        if self.log_dir:
+            self.clear_parsed_logs()
+            for log_type, path in self.get_log_files().items():
+                if path.exists():
+                    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                        for line in f:
+                            self.parse_line(line, log_type)
 
     def parse_line(self, line, log_type):
         if not line.strip():
