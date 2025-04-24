@@ -119,7 +119,7 @@ class LogViewer(QWidget):
     def browse_log_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select CK3 Logs Folder")
         if folder:
-            print("User selected folder:", folder)
+            self.parser.change_log_dir(folder)
             self.load_logs_from_folder(folder)
             
     def load_logs_from_folder(self, folder_path):
