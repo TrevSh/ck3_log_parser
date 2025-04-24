@@ -8,7 +8,7 @@ parsed_game = {}
 
 class LogParser:
     def __init__(self, log_dir: Path = None):
-        self.log_dir = log_dir or self.get_windows_default_log_dir()
+        self.log_dir = log_dir
         self.parsed_errors = {}
         self.parsed_debug = {}
         self.parsed_game = {}
@@ -20,6 +20,11 @@ class LogParser:
             "debug": self.log_dir / "debug.log",
             "game": self.log_dir / "game.log",
         }
+    
+    def change_log_dir(self, new_dir: Path):
+        if new_dir != self.log_dir:
+            self.log_dir = new_dir
+            self.clear_parsed_logs()
 
     def clear_parsed_logs(self):
         self.parsed_errors.clear()
