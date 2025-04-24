@@ -8,17 +8,26 @@ parsed_game = {}
 
 class LogParser:
     def __init__(self, log_dir: Path = None):
-        self.log_dir = log_dir or self.get_windows_default_log_dir()
+        self.log_dir = log_dir
         self.parsed_errors = {}
         self.parsed_debug = {}
         self.parsed_game = {}
+        
 
     def get_log_files(self):
+        if not self.log_dir:
+            return
+        self.log_dir = Path(self.log_dir)
         return {
             "error": self.log_dir / "error.log",
             "debug": self.log_dir / "debug.log",
             "game": self.log_dir / "game.log",
         }
+    
+    def change_log_dir(self, new_dir: Path):
+        if new_dir != self.log_dir:
+            self.log_dir = new_dir
+            self.clear_parsed_logs()
 
     def clear_parsed_logs(self):
         self.parsed_errors.clear()
@@ -26,12 +35,13 @@ class LogParser:
         self.parsed_game.clear()
 
     def parse(self):
-        self.clear_parsed_logs()
-        for log_type, path in self.get_log_files().items():
-            if path.exists():
-                with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-                    for line in f:
-                        self.parse_line(line, log_type)
+        if self.log_dir:
+            self.clear_parsed_logs()
+            for log_type, path in self.get_log_files().items():
+                if path.exists():
+                    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                        for line in f:
+                            self.parse_line(line, log_type)
 
     def parse_line(self, line, log_type):
         if not line.strip():
