@@ -130,11 +130,13 @@ class LogViewer(QWidget):
             if path.exists():
                 with open(path, "r", encoding="utf-8", errors="ignore") as file:
                     for line in file:
-                        self.parser.parse_and_append_line(line, log_type)
+                        self.parser.parse_line(line, log_type)
 
         self.populate_table()  # Your own table update function                
 
     def load_logs(self):
+        if not self.parser.log_dir:
+            return
         self.parser.clear_parsed_logs()
         log_files = self.parser.get_log_files()
         for log_type, path in log_files.items():
