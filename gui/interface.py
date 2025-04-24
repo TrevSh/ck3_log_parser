@@ -1,4 +1,5 @@
 import sys, datetime
+from pathlib import Path
 from core import log_parser
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QIcon, QBrush, QColor
@@ -41,6 +42,7 @@ class LogViewer(QWidget):
         """)
 
         self.setWindowTitle("CK3 Log Viewer!(Beta)")
+
 
         # Filter controls
         controls = QHBoxLayout()
@@ -85,12 +87,14 @@ class LogViewer(QWidget):
        
         # Footer row
         footer_layout = QHBoxLayout()
-        footer_layout.addStretch()                 # push the label to the right
         footer_layout.addWidget(github_label)
+        footer_layout.addStretch()                 # push the label to the right
         self.layout.addLayout(footer_layout)
+        self.folder_status = QLabel("❌ No folder selected")
+        self.folder_status.setStyleSheet("color: red; font-size: 10pt; padding: 4px;")
+        self.folder_status.setWordWrap(False)
+        footer_layout.addWidget(self.folder_status)
         
-        self.timestamp_label = QLabel() 
-        self.timestamp_label.setAlignment(Qt.AlignLeft)
 
         # Bind events
         self.refresh_button.clicked.connect(self.load_logs)
@@ -120,6 +124,8 @@ class LogViewer(QWidget):
         folder = QFileDialog.getExistingDirectory(self, "Select CK3 Logs Folder")
         if folder:
             self.parser.change_log_dir(folder)
+            self.folder_status.setText(f"📁 {Path(folder)}")
+            self.folder_status.setStyleSheet("color: green; font-size: 10pt; padding: 4px;")
             self.load_logs_from_folder(folder)
             
     def load_logs_from_folder(self, folder_path):
@@ -140,9 +146,9 @@ class LogViewer(QWidget):
         self.parser.clear_parsed_logs()
         log_files = self.parser.get_log_files()
         for log_type, path in log_files.items():
-            with open(path, "r", encoding="utf-8", errors="ignore") as file:
-                for line in file:
-                    self.parser.parse_line(line, log_type)
+                with open(path, "r", encoding="utf-8", errors="ignore") as file:
+                    for line in file:
+                        self.parser.parse_line(line, log_type)
 
         self.populate_table()
         
