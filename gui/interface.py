@@ -150,7 +150,7 @@ class LogViewer(QWidget):
                     for line in file:
                         self.parser.parse_line(line, log_type)
 
-        self.populate_table()
+        self.apply_filters()
         
     def apply_filters(self):
         selected_type = self.type_filter.currentText().lower()
